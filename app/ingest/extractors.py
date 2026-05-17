@@ -9,13 +9,12 @@ from __future__ import annotations
 
 import logging
 from pathlib import Path
-from typing import Optional
 
 from docling.datamodel.base_models import InputFormat
 from docling.datamodel.pipeline_options import (
-    PdfPipelineOptions,
-    AcceleratorOptions,
     AcceleratorDevice,
+    AcceleratorOptions,
+    PdfPipelineOptions,
 )
 from docling.document_converter import DocumentConverter, PdfFormatOption
 

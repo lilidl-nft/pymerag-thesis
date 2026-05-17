@@ -9,15 +9,14 @@ from __future__ import annotations
 
 import logging
 import uuid
-from datetime import datetime, timezone
-from enum import Enum
+from datetime import UTC, datetime
+from enum import StrEnum
 from pathlib import Path
 from typing import Any
 
 from fastapi import APIRouter, BackgroundTasks, HTTPException
 from pydantic import BaseModel, Field
 
-from app.core.config import settings
 from app.ingest.pipeline import IngestionPipeline
 
 logger = logging.getLogger(__name__)
@@ -29,7 +28,7 @@ router = APIRouter(prefix="/ingest")
 _jobs: dict[str, dict[str, Any]] = {}
 
 
-class SourceType(str, Enum):
+class SourceType(StrEnum):
     """Tipo de origen para la ingesta."""
 
     FILE = "file"
@@ -105,7 +104,7 @@ def _run_ingestion(job_id: str, request: IngestRequest) -> None:
     try:
         _jobs[job_id]["status"] = "processing"
         _jobs[job_id]["progress"] = 0.1
-        _jobs[job_id]["updated_at"] = datetime.now(timezone.utc).isoformat()
+        _jobs[job_id]["updated_at"] = datetime.now(UTC).isoformat()
 
         pipeline = IngestionPipeline()
 
@@ -143,7 +142,7 @@ def _run_ingestion(job_id: str, request: IngestRequest) -> None:
         _jobs[job_id]["status"] = result.get("status", "completed")
         _jobs[job_id]["progress"] = 1.0
         _jobs[job_id]["result"] = result
-        _jobs[job_id]["updated_at"] = datetime.now(timezone.utc).isoformat()
+        _jobs[job_id]["updated_at"] = datetime.now(UTC).isoformat()
 
         logger.info("Job %s completado: %s", job_id, result.get("status"))
 
@@ -152,7 +151,7 @@ def _run_ingestion(job_id: str, request: IngestRequest) -> None:
         _jobs[job_id]["status"] = "failed"
         _jobs[job_id]["error"] = str(exc)
         _jobs[job_id]["progress"] = 0.0
-        _jobs[job_id]["updated_at"] = datetime.now(timezone.utc).isoformat()
+        _jobs[job_id]["updated_at"] = datetime.now(UTC).isoformat()
 
 
 @router.post(
@@ -198,7 +197,7 @@ async def ingest_document(
             )
 
     # Registrar el trabajo
-    now = datetime.now(timezone.utc).isoformat()
+    now = datetime.now(UTC).isoformat()
     _jobs[job_id] = {
         "job_id": job_id,
         "status": "queued",

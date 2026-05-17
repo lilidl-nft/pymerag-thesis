@@ -8,12 +8,11 @@ GET /admin/audit  — Consultar registros de auditoría.
 from __future__ import annotations
 
 import logging
-from datetime import datetime, timezone
-from typing import Any, Optional
+from datetime import UTC, datetime
 
 import httpx
 from fastapi import APIRouter, Query
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
 from qdrant_client import QdrantClient
 from sqlmodel import Session, create_engine, select
 
@@ -38,8 +37,8 @@ class ServiceStatus(BaseModel):
     """
 
     status: str
-    latency_ms: Optional[float] = None
-    error: Optional[str] = None
+    latency_ms: float | None = None
+    error: str | None = None
 
 
 class HealthResponse(BaseModel):
@@ -69,8 +68,8 @@ class AuditEntry(BaseModel):
     id: str
     timestamp: str
     action: str
-    target_id: Optional[str] = None
-    user_id: Optional[str] = None
+    target_id: str | None = None
+    user_id: str | None = None
 
 
 # ── Endpoints ──────────────────────────────────────────────────────
@@ -201,7 +200,7 @@ async def health_check() -> HealthResponse:
     return HealthResponse(
         status=overall,
         services=services,
-        timestamp=datetime.now(timezone.utc).isoformat(),
+        timestamp=datetime.now(UTC).isoformat(),
     )
 
 
@@ -218,7 +217,7 @@ async def get_audit_logs(
         le=500,
         description="Número máximo de registros a retornar.",
     ),
-    action: Optional[str] = Query(
+    action: str | None = Query(
         default=None,
         description="Filtrar por tipo de acción (ej. 'QUERY_EXECUTE').",
     ),

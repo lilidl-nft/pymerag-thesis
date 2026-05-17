@@ -7,10 +7,9 @@ GET /topics — Obtener el panorama de tópicos del corpus.
 from __future__ import annotations
 
 import logging
-from typing import Any
 
 from fastapi import APIRouter
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
 
 from app.topics.service import get_topic_service
 

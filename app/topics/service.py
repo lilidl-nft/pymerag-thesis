@@ -8,7 +8,7 @@ de tópicos y expone consultas sobre el panorama de tópicos actual.
 from __future__ import annotations
 
 import logging
-from typing import Any, Optional
+from typing import Any
 
 from sqlmodel import Session, create_engine, select
 
@@ -58,7 +58,7 @@ class TopicService:
                 for t in topics
             ]
 
-    def get_topic(self, topic_id: str) -> Optional[dict[str, Any]]:
+    def get_topic(self, topic_id: str) -> dict[str, Any] | None:
         """Obtiene un tópico específico por ID.
 
         Args:
@@ -81,7 +81,7 @@ class TopicService:
 
 
 # ── Singleton ───────────────────────────────────────────────────────
-_topic_service: Optional[TopicService] = None
+_topic_service: TopicService | None = None
 
 
 def get_topic_service() -> TopicService:

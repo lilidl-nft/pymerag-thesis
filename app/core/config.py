@@ -7,7 +7,6 @@ Carga variables de entorno y expone una instancia singleton de Settings.
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Optional
 
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
@@ -35,7 +34,7 @@ class Settings(BaseSettings):
     qdrant_grpc_port: int = 6334
     """Puerto gRPC de Qdrant."""
 
-    qdrant_api_key: Optional[str] = None
+    qdrant_api_key: str | None = None
     """Clave API para Qdrant Cloud (opcional)."""
 
     qdrant_collection: str = "pymerag_chunks"
@@ -69,15 +68,15 @@ class Settings(BaseSettings):
     """Formato de exportación de Docling ('markdown' o 'text')."""
 
     # ── LLM / llama.cpp ────────────────────────────────────────────
-    llm_model_path: Optional[str] = None
+    llm_model_path: str | None = None
     """Ruta al modelo GGUF para llama.cpp (None = usar API externa)."""
 
     llm_api_base: str = "http://localhost:8080/v1"
     """URL base de la API compatible con OpenAI (llama.cpp server)."""
 
     # ── Langfuse (observabilidad) ──────────────────────────────────
-    langfuse_public_key: Optional[str] = None
-    langfuse_secret_key: Optional[str] = None
+    langfuse_public_key: str | None = None
+    langfuse_secret_key: str | None = None
     langfuse_host: str = "http://localhost:3000"
 
     # ── API Server ─────────────────────────────────────────────────

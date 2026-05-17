@@ -13,22 +13,17 @@ from unittest.mock import MagicMock, patch
 import numpy as np
 import pytest
 
+# Importar la función de construcción de prompt desde routes para test unitario
+from app.api.routes_query import _build_prompt
 from app.rag.embeddings import (
     HybridEmbedder,
     _DummyBGE,
     get_embedder,
 )
 from app.rag.retriever import (
-    DENSE_VECTOR_NAME,
-    HYBRID_SEARCH_LIMIT,
-    SPARSE_VECTOR_NAME,
     QdrantIndexer,
     QdrantRetriever,
 )
-
-# Importar la función de construcción de prompt desde routes para test unitario
-from app.api.routes_query import _build_prompt
-
 
 # ── Fixtures ────────────────────────────────────────────────────────
 
@@ -234,7 +229,6 @@ class TestQdrantIndexer:
     ) -> None:
         """Al inicio la colección no debe existir."""
         # El mock empieza vacío
-        from app.rag.retriever import QdrantIndexer
         assert not mock_indexer.collection_exists()
 
     def test_create_collection(self, mock_indexer: MagicMock) -> None:
@@ -402,7 +396,6 @@ class TestQdrantRetriever:
 
     def test_build_filter_multiple_keys(self) -> None:
         """_build_filter con múltiples claves produce múltiples condiciones."""
-        from qdrant_client import models
 
         qfilter = QdrantRetriever._build_filter({
             "doc_id": "123",

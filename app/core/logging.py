@@ -9,11 +9,10 @@ from __future__ import annotations
 
 import logging
 import sys
-from typing import Optional
 
 
 def setup_logging(
-    level: Optional[str] = None,
+    level: str | None = None,
     json_format: bool = False,
 ) -> None:
     """Configura el logging global para la aplicación.

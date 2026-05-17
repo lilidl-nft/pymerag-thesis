@@ -9,16 +9,16 @@ from __future__ import annotations
 
 import logging
 import uuid
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any
 
-from sqlmodel import Session, SQLModel, create_engine, select
+from sqlmodel import Session, SQLModel, create_engine
 
 from app.core.config import settings
 from app.ingest.chunker import TextChunk, TextChunker
 from app.ingest.extractors import DoclingExtractor
-from app.models.sql import Document, Chunk
+from app.models.sql import Chunk, Document
 from app.rag.embeddings import HybridEmbedder, get_embedder
 from app.rag.retriever import QdrantIndexer
 
@@ -184,7 +184,7 @@ class IngestionPipeline:
             path=str(path.absolute()),
             file_type=path.suffix.lower().lstrip("."),
             metadata_=metadata,
-            created_at=datetime.now(timezone.utc),
+            created_at=datetime.now(UTC),
         )
 
         with Session(self._engine) as session:
@@ -207,7 +207,7 @@ class IngestionPipeline:
             qdrant_ids: IDs correspondientes en Qdrant.
         """
         with Session(self._engine) as session:
-            for i, (cd, qid) in enumerate(zip(chunk_dicts, qdrant_ids)):
+            for _i, (cd, qid) in enumerate(zip(chunk_dicts, qdrant_ids, strict=True)):
                 chunk = Chunk(
                     document_id=document_id,
                     content=cd["content"],

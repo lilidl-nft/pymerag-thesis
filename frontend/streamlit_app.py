@@ -20,7 +20,8 @@ import datetime
 import json
 import os
 import time
-from typing import Any, Callable, Optional
+from collections.abc import Callable
+from typing import Any
 
 import httpx
 import streamlit as st
@@ -50,7 +51,7 @@ class APIClient:
     def __init__(self, base_url: str = API_BASE_URL, timeout: float = REQUEST_TIMEOUT) -> None:
         self._base = base_url.rstrip("/")
         self._timeout = timeout
-        self._client: Optional[httpx.Client] = None
+        self._client: httpx.Client | None = None
 
     @property
     def client(self) -> httpx.Client:
@@ -86,7 +87,7 @@ class APIClient:
         self,
         source_path: str,
         source_type: str = "file",
-        metadata: Optional[dict[str, Any]] = None,
+        metadata: dict[str, Any] | None = None,
     ) -> dict[str, Any]:
         """POST /ingest/document — trigger async document ingestion.
 
@@ -144,7 +145,7 @@ class APIClient:
         r.raise_for_status()
         return r.json()
 
-    def audit_logs(self, limit: int = 50, action: Optional[str] = None) -> list[dict[str, Any]]:
+    def audit_logs(self, limit: int = 50, action: str | None = None) -> list[dict[str, Any]]:
         """GET /admin/audit — retrieve audit log entries.
 
         Args:
@@ -377,7 +378,7 @@ def documents_page() -> None:
 
         if st.button("🚀 Iniciar ingesta", type="primary", use_container_width=True):
             # Resolve source path
-            resolved_path: Optional[str] = None
+            resolved_path: str | None = None
             if source_type == "file" and source_path_input:
                 resolved_path = source_path_input
             elif source_type == "file" and uploaded_file is not None:
@@ -457,7 +458,7 @@ def documents_page() -> None:
                     if status in ("completed", "partial"):
                         result = status_data.get("result")
                         if result:
-                            st.success(f"✅ {result.get('files_processed', '?')} archivos procesados")
+                            st.success(f"✅ {result.get('files_processed', '?')} archivos procesados")  # noqa: E501
                     elif status == "failed":
                         error = status_data.get("error", "Error desconocido")
                         st.error(f"❌ {error}")
@@ -588,7 +589,7 @@ def admin_page() -> None:
             svc_error = svc_data.get("error")
 
             emoji = {"qdrant": "🗄️", "llm": "🧠", "db": "🗃️"}.get(svc_name, "🔌")
-            name_display = {"qdrant": "Qdrant (Vector DB)", "llm": "LLM Server", "db": "Base de datos"}.get(
+            name_display = {"qdrant": "Qdrant (Vector DB)", "llm": "LLM Server", "db": "Base de datos"}.get(  # noqa: E501
                 svc_name, svc_name
             )
 

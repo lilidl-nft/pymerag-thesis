@@ -10,9 +10,8 @@ from __future__ import annotations
 import logging
 import re
 from dataclasses import dataclass, field
-from typing import Optional
 
-from langdetect import detect, DetectorFactory
+from langdetect import DetectorFactory, detect
 
 from app.core.config import settings
 
@@ -35,7 +34,7 @@ class TextChunk:
     end_index: int
     """Offset de fin en el texto original."""
 
-    language: Optional[str] = None
+    language: str | None = None
     """Código ISO 639-1 del idioma detectado."""
 
     metadata: dict = field(default_factory=dict)
@@ -69,7 +68,7 @@ def clean_text(text: str) -> str:
     return text
 
 
-def detect_language(text: str, min_length: int = 50) -> Optional[str]:
+def detect_language(text: str, min_length: int = 50) -> str | None:
     """Detecta el idioma principal de un texto.
 
     Args:

@@ -8,8 +8,9 @@ para que todos los tests sean deterministas y reproducibles.
 from __future__ import annotations
 
 import json
+from collections.abc import Generator
 from pathlib import Path
-from typing import Any, Generator
+from typing import Any
 from unittest.mock import MagicMock, patch
 
 import pytest
@@ -162,7 +163,7 @@ class FakeQdrantCollections:
         self.collections = [
             MagicMock(name=n) for n in (names or [])
         ]
-        for c, n in zip(self.collections, names or []):
+        for c, n in zip(self.collections, names or [], strict=False):
             c.name = n
 
 
@@ -293,7 +294,7 @@ def mock_httpx_client() -> Generator[MagicMock, None, None]:
             "choices": [
                 {
                     "message": {
-                        "content": "Python es un lenguaje de programación de alto nivel creado por Guido van Rossum."
+                        "content": "Python es un lenguaje de programación de alto nivel creado por Guido van Rossum."  # noqa: E501
                     }
                 }
             ]

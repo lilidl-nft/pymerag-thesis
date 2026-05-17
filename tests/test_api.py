@@ -7,15 +7,11 @@ usando el TestClient de FastAPI con servicios mockeados.
 
 from __future__ import annotations
 
-import json
 import time
 from pathlib import Path
-from typing import Any
-from unittest.mock import MagicMock, patch
 
 import pytest
 from fastapi.testclient import TestClient
-
 
 # ── Fixtures locales ────────────────────────────────────────────────
 
@@ -37,7 +33,7 @@ def sample_pdf_path(tmp_path: Path) -> str:
         b"1 0 obj<</Type/Catalog/Pages 2 0 R>>endobj\n"
         b"2 0 obj<</Type/Pages/Kids[3 0 R]/Count 1>>endobj\n"
         b"3 0 obj<</Type/Page/MediaBox[0 0 612 792]/Parent 2 0 R/Resources<<>>>>endobj\n"
-        b"xref\n0 4\n0000000000 65535 f \n0000000009 00000 n \n0000000058 00000 n \n0000000115 00000 n \n"
+        b"xref\n0 4\n0000000000 65535 f \n0000000009 00000 n \n0000000058 00000 n \n0000000115 00000 n \n"  # noqa: E501
         b"trailer<</Size 4/Root 1 0 R>>\n"
         b"startxref\n190\n%%EOF"
     )

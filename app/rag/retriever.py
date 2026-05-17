@@ -9,14 +9,13 @@ from __future__ import annotations
 
 import logging
 import uuid
-from typing import Any, Optional
+from typing import Any
 
 from qdrant_client import QdrantClient, models
 from qdrant_client.models import (
     Distance,
-    SparseVector,
-    VectorParams,
     SparseVectorParams,
+    VectorParams,
 )
 
 from app.core.config import settings

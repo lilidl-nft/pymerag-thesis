@@ -17,9 +17,9 @@ import argparse
 import json
 import logging
 import sys
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any
 
 logging.basicConfig(level=logging.INFO, format="%(levelname)s | %(message)s")
 logger = logging.getLogger("ragas_eval")
@@ -35,7 +35,7 @@ DEFAULT_OUTPUT = REPORTS_DIR / "ragas_results.json"
 # ── Carga del golden set ──────────────────────────────────────────────
 
 
-def load_golden_set(path: Optional[Path] = None) -> list[dict[str, Any]]:
+def load_golden_set(path: Path | None = None) -> list[dict[str, Any]]:
     """Carga el golden set desde un archivo JSONL.
 
     Args:
@@ -157,7 +157,7 @@ def evaluate_offline(golden_set: list[dict[str, Any]]) -> dict[str, Any]:
     return {
         "metadata": {
             "evaluation_mode": "offline",
-            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "timestamp": datetime.now(UTC).isoformat(),
             "dataset": str(GOLDEN_SET_PATH.name),
             "total_items": total_items,
         },
@@ -225,14 +225,14 @@ def evaluate_live(golden_set: list[dict[str, Any]]) -> dict[str, Any]:
     context_recall = None  # type: ignore[assignment]
     evaluator_llm = None
     try:
+        from langchain_openai import ChatOpenAI  # type: ignore[import-untyped]
+        from ragas.llms import LangchainLLMWrapper  # type: ignore[import-untyped]
         from ragas.metrics import (  # type: ignore[no-redef]
-            faithfulness,
             answer_relevancy,
             context_precision,
             context_recall,
+            faithfulness,
         )
-        from ragas.llms import LangchainLLMWrapper  # type: ignore[import-untyped]
-        from langchain_openai import ChatOpenAI  # type: ignore[import-untyped]
 
         evaluator_llm = LangchainLLMWrapper(
             ChatOpenAI(
@@ -253,7 +253,6 @@ def evaluate_live(golden_set: list[dict[str, Any]]) -> dict[str, Any]:
         for item in golden_set:
             question = item["question"]
             ground_truth = item["ground_truth_answer"]
-            contexts_gt = item.get("ground_truth_contexts", [])
 
             item_result: dict[str, Any] = {
                 "id": item.get("id", ""),
@@ -364,7 +363,7 @@ def evaluate_live(golden_set: list[dict[str, Any]]) -> dict[str, Any]:
     return {
         "metadata": {
             "evaluation_mode": "live",
-            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "timestamp": datetime.now(UTC).isoformat(),
             "dataset": str(GOLDEN_SET_PATH.name),
             "total_items": total_items,
             "api_url": API_URL,

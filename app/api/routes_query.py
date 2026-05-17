@@ -8,25 +8,25 @@ from __future__ import annotations
 
 import logging
 import time
-from datetime import datetime, timezone
-from typing import Any, Optional
+from datetime import UTC, datetime
+from typing import Any
 
 import httpx
 from fastapi import APIRouter
 from pydantic import BaseModel, Field
+from sqlmodel import Session, create_engine
 
 from app.core.config import settings
 from app.models.sql import AuditLog
 from app.rag.embeddings import get_embedder
 from app.rag.retriever import QdrantIndexer, QdrantRetriever
-from sqlmodel import Session, create_engine
 
 logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/query")
 
 # ── Clientes ───────────────────────────────────────────────────────
-_retriever: Optional[QdrantRetriever] = None
+_retriever: QdrantRetriever | None = None
 
 
 def _get_retriever() -> QdrantRetriever:
@@ -133,7 +133,7 @@ def _build_prompt(query: str, chunks: list[dict[str, Any]]) -> str:
 
 async def _generate_answer(
     prompt: str,
-    client: Optional[httpx.AsyncClient] = None,
+    client: httpx.AsyncClient | None = None,
 ) -> str:
     """Genera una respuesta usando el servidor LLM compatible con OpenAI.
 
@@ -204,7 +204,7 @@ def _audit_query(query: str, answer: str, latency: float) -> None:
                     "answer_preview": answer[:200],
                     "latency": latency,
                 },
-                timestamp=datetime.now(timezone.utc),
+                timestamp=datetime.now(UTC),
             )
             session.add(log_entry)
             session.commit()

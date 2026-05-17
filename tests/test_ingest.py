@@ -8,14 +8,13 @@ detección de idioma y orquestación completa.
 from __future__ import annotations
 
 from pathlib import Path
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock
 
 import pytest
 
 from app.ingest.chunker import TextChunk, TextChunker, clean_text, detect_language
 from app.ingest.extractors import DoclingExtractor
 from app.ingest.pipeline import IngestionPipeline
-
 
 # ── Fixtures locales ────────────────────────────────────────────────
 
@@ -241,7 +240,7 @@ class TestTextChunker:
         chunks = chunker_default.chunk(tiny_text)
         reconstructed = "".join(c.content for c in chunks)
         # Puede diferir ligeramente por limpieza, pero debe contener el texto clave
-        for word in tiny_text.split():
+        for _word in tiny_text.split():
             # Algunas palabras pueden perderse por el chunking, verificamos las principales
             pass
         assert len(reconstructed) > 0

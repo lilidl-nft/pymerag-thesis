@@ -8,8 +8,8 @@ el esquema aprobado en Sprint 0.
 from __future__ import annotations
 
 import uuid
-from datetime import datetime, timezone
-from typing import Any, Optional
+from datetime import UTC, datetime
+from typing import Any
 
 from sqlalchemy import JSON
 from sqlmodel import Column, Field, Relationship, SQLModel
@@ -17,7 +17,7 @@ from sqlmodel import Column, Field, Relationship, SQLModel
 
 def utcnow() -> datetime:
     """Retorna el timestamp UTC actual."""
-    return datetime.now(timezone.utc)
+    return datetime.now(UTC)
 
 
 def new_uuid() -> str:
@@ -39,7 +39,7 @@ class Document(SQLModel, table=True):
     path: str
     """Ruta original o URL de origen del documento."""
 
-    file_type: Optional[str] = Field(default=None)
+    file_type: str | None = Field(default=None)
     """Tipo de archivo: 'pdf', 'docx', 'pptx', 'txt', etc."""
 
     metadata_: dict[str, Any] = Field(
@@ -51,11 +51,11 @@ class Document(SQLModel, table=True):
     created_at: datetime = Field(default_factory=utcnow)
     """Fecha y hora de ingesta del documento."""
 
-    updated_at: Optional[datetime] = Field(default=None)
+    updated_at: datetime | None = Field(default=None)
     """Fecha de última modificación del documento."""
 
     # ── Relaciones ───────────────────────────────────────────────
-    chunks: list["Chunk"] = Relationship(back_populates="document")
+    chunks: list[Chunk] = Relationship(back_populates="document")
 
 
 class Chunk(SQLModel, table=True):
@@ -75,17 +75,17 @@ class Chunk(SQLModel, table=True):
     qdrant_id: str = Field(unique=True, index=True)
     """Identificador del punto correspondiente en Qdrant."""
 
-    start_index: Optional[int] = Field(default=None)
+    start_index: int | None = Field(default=None)
     """Offset de inicio del chunk en el texto original."""
 
-    end_index: Optional[int] = Field(default=None)
+    end_index: int | None = Field(default=None)
     """Offset de fin del chunk en el texto original."""
 
-    embedding_model: Optional[str] = Field(default=None)
+    embedding_model: str | None = Field(default=None)
     """Nombre del modelo usado para generar el embedding de este chunk."""
 
     # ── Relaciones ───────────────────────────────────────────────
-    document: Optional[Document] = Relationship(back_populates="chunks")
+    document: Document | None = Relationship(back_populates="chunks")
 
 
 class Topic(SQLModel, table=True):
@@ -99,7 +99,7 @@ class Topic(SQLModel, table=True):
     name: str = Field(index=True)
     """Etiqueta o nombre del tópico."""
 
-    description: Optional[str] = Field(default=None)
+    description: str | None = Field(default=None)
     """Descripción automática o manual del tópico."""
 
     representative_chunks: list[str] = Field(
@@ -120,13 +120,13 @@ class AuditLog(SQLModel, table=True):
     timestamp: datetime = Field(default_factory=utcnow)
     """Momento en que ocurrió la acción."""
 
-    user_id: Optional[str] = Field(default=None)
+    user_id: str | None = Field(default=None)
     """Identificador del usuario o proceso del sistema."""
 
     action: str = Field(index=True)
     """Acción registrada (INGEST_START, QUERY_EXECUTE, etc.)."""
 
-    target_id: Optional[str] = Field(default=None)
+    target_id: str | None = Field(default=None)
     """ID del recurso afectado por la acción."""
 
     payload: dict[str, Any] = Field(
