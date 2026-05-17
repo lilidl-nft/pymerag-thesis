@@ -80,6 +80,23 @@ class Settings(BaseSettings):
     langfuse_secret_key: Optional[str] = None
     langfuse_host: str = "http://localhost:3000"
 
+    # ── API Server ─────────────────────────────────────────────────
+    api_host: str = "0.0.0.0"
+    """Host donde escucha el servidor FastAPI."""
+
+    api_port: int = 8000
+    """Puerto del servidor FastAPI."""
+
+    api_debug: bool = False
+    """Modo debug de FastAPI (deshabilitar en producción)."""
+
+    cors_origins: list[str] = [
+        "http://localhost:3000",
+        "http://localhost:8501",
+        "http://localhost:8000",
+    ]
+    """Orígenes permitidos para CORS."""
+
     # ── Directorios ────────────────────────────────────────────────
     data_dir: Path = Path("data")
     """Directorio raíz para datos y corpus."""
