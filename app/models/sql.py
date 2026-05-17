@@ -5,13 +5,12 @@ Define las tablas Document, Chunk, Topic y AuditLog según
 el esquema aprobado en Sprint 0.
 """
 
-from __future__ import annotations
-
 import uuid
 from datetime import UTC, datetime
 from typing import Any
 
 from sqlalchemy import JSON
+from sqlalchemy.orm import Mapped
 from sqlmodel import Column, Field, Relationship, SQLModel
 
 
@@ -55,7 +54,7 @@ class Document(SQLModel, table=True):
     """Fecha de última modificación del documento."""
 
     # ── Relaciones ───────────────────────────────────────────────
-    chunks: list["Chunk"] = Relationship(back_populates="document")  # noqa: UP037
+    chunks: Mapped[list["Chunk"]] = Relationship(back_populates="document")
 
 
 class Chunk(SQLModel, table=True):
@@ -85,7 +84,7 @@ class Chunk(SQLModel, table=True):
     """Nombre del modelo usado para generar el embedding de este chunk."""
 
     # ── Relaciones ───────────────────────────────────────────────
-    document: "Document | None" = Relationship(back_populates="chunks")  # noqa: UP037
+    document: Mapped["Document | None"] = Relationship(back_populates="chunks")
 
 
 class Topic(SQLModel, table=True):
