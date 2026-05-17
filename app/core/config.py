@@ -96,6 +96,23 @@ class Settings(BaseSettings):
     ]
     """Orígenes permitidos para CORS."""
 
+    # ── Seguridad / JWT ──────────────────────────────────────────────
+    jwt_secret: str = "pymerag-secret-change-in-production"
+    """Clave secreta para firmar tokens JWT."""
+
+    jwt_algorithm: str = "HS256"
+    """Algoritmo de firma para JWT."""
+
+    jwt_expire_minutes: int = 60
+    """Tiempo de expiración de los tokens JWT en minutos."""
+
+    # ── Rate Limiting ───────────────────────────────────────────────
+    rate_limit_requests: int = 100
+    """Número máximo de solicitudes por ventana de rate limiting."""
+
+    rate_limit_window: int = 60
+    """Ventana de tiempo para rate limiting en segundos."""
+
     # ── Directorios ────────────────────────────────────────────────
     data_dir: Path = Path("data")
     """Directorio raíz para datos y corpus."""
