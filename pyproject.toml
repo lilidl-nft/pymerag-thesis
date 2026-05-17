@@ -76,7 +76,9 @@ packages = ["app"]
 pymerag-api = "app.main:app"
 
 [tool.uv]
-dev-dependencies = [
+
+[dependency-groups]
+dev = [
     "pytest>=8.0",
     "pytest-asyncio>=0.23",
     "ruff>=0.4",
