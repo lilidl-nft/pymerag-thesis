@@ -91,7 +91,7 @@ El proyecto incluye un pipeline de evaluación automática basado en el framewor
 *   **Answer Relevancy:** Relevancia de la respuesta respecto a la consulta.
 *   **Context Precision/Recall:** Calidad de la recuperación de fragmentos.
 
-La integración continua (CI) mediante GitHub Actions garantiza que cada cambio cumpla con los estándares de calidad mediante la ejecución de `ruff` para linting y `pytest` para pruebas funcenciales.
+La integración continua (CI) mediante GitHub Actions garantiza que cada cambio cumpla con los estándares de calidad mediante la ejecución de `ruff` para linting y `pytest` para pruebas funcionales.
 
 ---
 *Este proyecto es parte de una investigación académica. Para consultas técnicas, contactar al autor.*
