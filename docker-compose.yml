@@ -1,1 +1,153 @@
-# Placeholder
+# ═══════════════════════════════════════════════════════════════════
+# Pymerag — Docker Compose (Production Stack)
+# ═══════════════════════════════════════════════════════════════════
+#
+# Services:
+#   api    — FastAPI REST API (port 8000)
+#   qdrant — Vector database (port 6333)
+#   db     — PostgreSQL metadata store (port 5432)
+#   llm    — llama.cpp server with CUDA (port 8080)
+#
+# Usage:
+#   docker compose up -d              # Start all services
+#   docker compose logs -f api        # Follow API logs
+#   docker compose down -v            # Tear down and remove volumes
+#
+# ═══════════════════════════════════════════════════════════════════
+
+version: "3.8"
+
+services:
+  # ── FastAPI Application ────────────────────────────────────────
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: pymerag-api
+    ports:
+      - "${API_PORT:-8000}:8000"
+    environment:
+      # Database
+      DATABASE_URL: "postgresql://${POSTGRES_USER:-pymerag}:${POSTGRES_PASSWORD:-pymerag}@db:5432/${POSTGRES_DB:-pymerag}"
+      # Qdrant
+      QDRANT_HOST: "qdrant"
+      QDRANT_PORT: "6333"
+      QDRANT_GRPC_PORT: "6334"
+      # LLM
+      LLM_API_BASE: "http://llm:8080/v1"
+      # Embeddings
+      EMBEDDING_MODEL: "${EMBEDDING_MODEL:-BAAI/bge-m3}"
+      EMBEDDING_DEVICE: "cpu"
+      # Observability (optional)
+      LANGFUSE_PUBLIC_KEY: "${LANGFUSE_PUBLIC_KEY:-}"
+      LANGFUSE_SECRET_KEY: "${LANGFUSE_SECRET_KEY:-}"
+      LANGFUSE_HOST: "${LANGFUSE_HOST:-http://localhost:3000}"
+      # API
+      API_HOST: "0.0.0.0"
+      API_PORT: "8000"
+      API_DEBUG: "${API_DEBUG:-false}"
+      CORS_ORIGINS: '["http://localhost:3000","http://localhost:8501","http://localhost:8000"]'
+    volumes:
+      - ./data:/app/data
+      - ./models:/models:ro
+    depends_on:
+      qdrant:
+        condition: service_healthy
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - pymerag-net
+
+  # ── Qdrant Vector Database ────────────────────────────────────
+  qdrant:
+    image: qdrant/qdrant:v1.10.0
+    container_name: pymerag-qdrant
+    ports:
+      - "${QDRANT_REST_PORT:-6333}:6333"
+      - "${QDRANT_GRPC_PORT:-6334}:6334"
+    volumes:
+      - qdrant_data:/qdrant/storage
+    environment:
+      QDRANT__SERVICE__GRPC_PORT: "6334"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:6333/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 5s
+    restart: unless-stopped
+    networks:
+      - pymerag-net
+
+  # ── PostgreSQL Metadata Database ───────────────────────────────
+  db:
+    image: postgres:16-alpine
+    container_name: pymerag-db
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    environment:
+      POSTGRES_USER: "${POSTGRES_USER:-pymerag}"
+      POSTGRES_PASSWORD: "${POSTGRES_PASSWORD:-pymerag}"
+      POSTGRES_DB: "${POSTGRES_DB:-pymerag}"
+    volumes:
+      - psql_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-pymerag} -d ${POSTGRES_DB:-pymerag}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    restart: unless-stopped
+    networks:
+      - pymerag-net
+
+  # ── llama.cpp LLM Server (CUDA) ──────────────────────────────
+  llm:
+    image: ghcr.io/ggml-org/llama.cpp:server-cuda
+    container_name: pymerag-llm
+    ports:
+      - "${LLM_PORT:-8080}:8080"
+    volumes:
+      # Mount your GGUF models directory. Place your .gguf file(s)
+      # in ./models and set LLM_MODEL_PATH below or via .env.
+      - ./models:/models:ro
+    command:
+      - "-m"
+      - "${LLM_MODEL_PATH:-/models/model.gguf}"
+      - "--host"
+      - "0.0.0.0"
+      - "--port"
+      - "8080"
+      - "--n-gpu-layers"
+      - "${LLM_N_GPU_LAYERS:-99}"
+      - "--ctx-size"
+      - "${LLM_CTX_SIZE:-8192}"
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 15s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+    restart: unless-stopped
+    networks:
+      - pymerag-net
+
+# ── Named Volumes ─────────────────────────────────────────────────
+volumes:
+  qdrant_data:
+    driver: local
+  psql_data:
+    driver: local
+
+# ── Networks ──────────────────────────────────────────────────────
+networks:
+  pymerag-net:
+    driver: bridge
