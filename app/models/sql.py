@@ -84,7 +84,7 @@ class Chunk(SQLModel, table=True):
     """Nombre del modelo usado para generar el embedding de este chunk."""
 
     # ── Relaciones ───────────────────────────────────────────────
-    document: Mapped["Document | None"] = Relationship(back_populates="chunks")
+    document: Mapped["Document"] = Relationship(back_populates="chunks")
 
 
 class Topic(SQLModel, table=True):
