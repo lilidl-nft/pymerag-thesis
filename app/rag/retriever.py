@@ -368,9 +368,14 @@ class QdrantRetriever:
             return []
 
         # Ejecutar búsqueda híbrida con fusión
+        # FusionMode was introduced in qdrant-client 1.10+
+        try:
+            FusionMode = models.FusionMode
+        except AttributeError:
+            FusionMode = None
         fusion_mode = (
-            models.FusionMode.RRF
-            if len(prefetch) > 1
+            FusionMode.RRF
+            if len(prefetch) > 1 and FusionMode is not None
             else None
         )
 

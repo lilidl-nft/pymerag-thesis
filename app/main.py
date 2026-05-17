@@ -13,6 +13,7 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from sqlmodel import SQLModel, create_engine
 
 from app.api.routes_admin import router as admin_router
 from app.api.routes_ingest import router as ingest_router
@@ -40,6 +41,8 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     setup_logging()
     settings.data_dir.mkdir(parents=True, exist_ok=True)
     settings.upload_dir.mkdir(parents=True, exist_ok=True)
+    engine = create_engine(settings.database_url, echo=False)
+    SQLModel.metadata.create_all(engine)
     logger.info(
         "Pymerag API iniciando en http://%s:%s",
         settings.api_host,
