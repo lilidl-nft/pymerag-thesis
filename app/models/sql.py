@@ -55,7 +55,7 @@ class Document(SQLModel, table=True):
     """Fecha de última modificación del documento."""
 
     # ── Relaciones ───────────────────────────────────────────────
-    chunks: list[Chunk] = Relationship(back_populates="document")
+    chunks: list["Chunk"] = Relationship(back_populates="document")
 
 
 class Chunk(SQLModel, table=True):
@@ -85,7 +85,7 @@ class Chunk(SQLModel, table=True):
     """Nombre del modelo usado para generar el embedding de este chunk."""
 
     # ── Relaciones ───────────────────────────────────────────────
-    document: Document | None = Relationship(back_populates="chunks")
+    document: "Document | None" = Relationship(back_populates="chunks")
 
 
 class Topic(SQLModel, table=True):
