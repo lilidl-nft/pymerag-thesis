@@ -107,7 +107,7 @@ def decode_token(token: str) -> dict[str, Any]:
 
 
 async def get_current_user(
-    credentials: HTTPAuthorizationCredentials = Depends(security_scheme),
+    credentials: HTTPAuthorizationCredentials = Depends(security_scheme),  # noqa: B008
 ) -> dict[str, Any]:
     """Dependencia de FastAPI: extrae y valida el usuario desde el token JWT.
 
@@ -129,14 +129,14 @@ async def get_current_user(
         payload = decode_token(token)
     except jwt.ExpiredSignatureError:
         logger.warning("Token JWT expirado.")
-        raise HTTPException(
+        raise HTTPException(  # noqa: B904
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Token expirado. Inicie sesión nuevamente.",
             headers={"WWW-Authenticate": "Bearer"},
         )
     except jwt.InvalidTokenError as exc:
         logger.warning("Token JWT inválido: %s", exc)
-        raise HTTPException(
+        raise HTTPException(  # noqa: B904
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Token inválido.",
             headers={"WWW-Authenticate": "Bearer"},
@@ -175,7 +175,7 @@ def require_role(required_role: str):
     """
 
     async def role_checker(
-        user: dict[str, Any] = Depends(get_current_user),
+        user: dict[str, Any] = Depends(get_current_user),  # noqa: B008
     ) -> None:
         user_role = user.get("role", "")
         if user_role != required_role:
@@ -362,7 +362,7 @@ def get_rate_limiter() -> RateLimiter:
 
 async def rate_limit_dependency(
     request: Request,
-    limiter: RateLimiter = Depends(get_rate_limiter),
+    limiter: RateLimiter = Depends(get_rate_limiter),  # noqa: B008
 ) -> None:
     """Dependencia de FastAPI que aplica rate limiting por IP del cliente.
 

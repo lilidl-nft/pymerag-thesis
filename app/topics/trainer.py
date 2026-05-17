@@ -50,7 +50,7 @@ _STOP_WORDS_EN: set[str] = {
     "been", "be", "have", "has", "had", "do", "does", "did",
     "will", "would", "could", "should", "may", "might", "can",
     "shall", "it", "its", "he", "she", "they", "we", "you",
-    "i", "me", "him", "her", "us", "them", "his", "her",
+    "i", "me", "him", "her", "us", "them", "his",  # noqa: E501
     "their", "our", "my", "your", "and", "or", "but", "not",
     "this", "that", "these", "those", "there", "here",
     "which", "who", "whom", "what", "when", "where", "why",
@@ -218,7 +218,7 @@ class TopicTrainer:
         try:
             from bertopic import BERTopic  # type: ignore[import-untyped]
         except ImportError:
-            raise ImportError(
+            raise ImportError(  # noqa: B904
                 "BERTopic no está instalado. Instálalo con: "
                 "pip install bertopic scikit-learn"
             )

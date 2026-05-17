@@ -13,7 +13,7 @@ Si la verificación falla, el grafo puede reintentar la generación.
 from __future__ import annotations
 
 import logging
-from typing import Annotated, Any, Literal, TypedDict
+from typing import Any, Literal, TypedDict
 
 from app.rag.llm import LLMClient, get_llm_client
 from app.rag.reranker import Reranker, get_reranker
