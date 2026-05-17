@@ -1,0 +1,14 @@
+[project]
+name = "pymerag"
+version = "0.1.0"
+description = "RAG-MCP Assistant"
+dependencies = [
+    "fastapi",
+    "qdrant-client",
+    "docling",
+    "langgraph",
+    "fastmcp",
+    "sqlalchemy",
+    "sqlmodel",
+    "pydantic-settings",
+]
